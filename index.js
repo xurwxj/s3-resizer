@@ -4,7 +4,7 @@
 const AWS = require('aws-sdk');
 const S3 = new AWS.S3({signatureVersion: 'v4'});
 const Sharp = require('sharp');
-const PathPattern = /(.*\/)?(.*)\/(.*)/;
+// const PathPattern = /(.*\/)?(.*)\/(.*)/;
 
 // parameters
 const {BUCKET, URL} = process.env;
@@ -15,11 +15,16 @@ const WHITELIST = process.env.WHITELIST
 
 exports.handler = async (event) => {
     const path = event.queryStringParameters.path;
-    const parts = PathPattern.exec(path);
-    const dir = parts[1] || '';
-    const resizeOption = parts[2];  // e.g. "150x150_max"
+    console.log("path: ", path);
+    const parts = path.split("/");
+    const dir = parts.slice(1,parts.length-1).join("/") || '';
+    console.log("dir: ", dir);
+    const resizeOption = parts[0];  // e.g. "150x150_max"
+    console.log("resizeOption: ", resizeOption);
     const sizeAndAction = resizeOption.split('_');
-    const filename = parts[3];
+    console.log("sizeAndAction: ", sizeAndAction);
+    const filename = parts[parts.length-1];
+    console.log("filename: ", filename);
 
     const sizes = sizeAndAction[0].split("x");
     const action = sizeAndAction.length > 1 ? sizeAndAction[1] : null;
@@ -45,7 +50,7 @@ exports.handler = async (event) => {
 
     try {
         const data = await S3
-            .getObject({Bucket: BUCKET, Key: dir + filename})
+            .getObject({Bucket: BUCKET, Key: dir +"/"+ filename})
             .promise();
 
         const width = sizes[0] === 'AUTO' ? null : parseInt(sizes[0]);
