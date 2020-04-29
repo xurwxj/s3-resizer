@@ -92,7 +92,7 @@ exports.handler = async (event, context, callback) => {
                     fit = 'outside';
                     break;
                 default:
-                    fit = 'cover';
+                    fit = 'contain';
                     break;
             }
             const result = await Sharp(data.Body, {
